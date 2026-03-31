@@ -7,6 +7,15 @@
 - Briefly describe your initial UML design.
 - What classes did you include, and what responsibilities did you assign to each?
 
+"""
+We need to create classes for the following;
+
+- A `class` for creating a pet profile and adding pet details such as pet owner, pet age, breed, sex, dietary restrictions, allergies, etc.
+- A `class` that lets owners create and manage pet tasks such as scheduling walks, meals, medications, vet appointments, grooming, etc. Upon tasks creation, it's assumed that this class also makes it so that the user has the option of storing it as a preference for each of their pet(s) respectively, if more than 1.
+- A `class` that suggests daily plans or task schedules for the owner's pet(s), according to both the preferences stored in place for each pet, and any given constraints(these could be the priority of each task, or the time available for each task, according to the availability of the owner), and also including a brief description as to why the suggested plan is a good one. The user still has full control over these task suggestions as they're able to edit them according to their own schedule for the day.
+
+"""
+
 **b. Design changes**
 
 - Did your design change during implementation?
