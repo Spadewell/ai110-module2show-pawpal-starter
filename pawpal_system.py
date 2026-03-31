@@ -31,12 +31,23 @@ class OwnerProfile:
         owner_id: str,
         name: str,
         email: str,
+        pets: Optional[List[PetProfile]] = [],
         daily_availability: Optional[Constraint] = None,
     ):
         self.owner_id: str = owner_id
         self.name: str = name
         self.email: str = email
+        self.pets = pets
         self.daily_availability: Optional[Constraint] = daily_availability
+
+    def add_pet(self, pet: PetProfile) -> None:
+        self.pets.append(pet)
+    
+    def remove_pet(self, pet: PetProfile) -> None:
+        for p in self.pets:
+            if p.pet_id == pet.pet_id:
+                self.pets.remove(p)
+                break
 
     def update_availability(self, constraint: Constraint) -> None:
         self.daily_availability = constraint
@@ -83,7 +94,7 @@ class PetTask:
         task_id: str,
         pet_id: str,
         task_type: str,
-        duration: int,
+        duration: int, # in mins
         priority: int,
         preferred_time_window: Optional[Constraint] = None,
         is_recurring: bool = False,
@@ -195,8 +206,31 @@ class Scheduler:
     def __init__(self, task_manager: Optional[TaskManager] = None):
         self.task_manager: TaskManager = task_manager or TaskManager()
 
-    def generate_daily_plan(self, date: str, constraints: Optional[Constraint] = None) -> PlanExplanation:
-        raise NotImplementedError
+    def retrieve_tasks_for_owner(self, owner: OwnerProfile) -> List[PetTask]:
+        all_tasks = []
+        for pet in owner.pets:
+            all_tasks.extend(self.task_manager.get_tasks(pet.pet_id))
+        return all_tasks
+
+    def generate_daily_plan(self, owner: OwnerProfile, date: str, constraints: Optional[Constraint] = None) -> PlanExplanation:
+        # Step 1: Retrieve all tasks for the owner's pets
+        tasks = self.retrieve_tasks_for_owner(owner)
+        
+        # Step 2: Rank tasks by priority (using existing helper)
+        ranked_tasks = self._rank_by_priority(tasks)
+        
+        # Step 3: Calculate the best schedule (using existing helper)
+        scheduled_tasks = self._calculate_best_schedule(ranked_tasks, constraints)
+        
+        # Step 4: Build reasoning and constraints list (placeholders for now)
+        reasoning = f"Scheduled {len(scheduled_tasks)} tasks for {date} based on priority and constraints."
+        constraints_applied = ["Owner availability", "Pet preferences"] if constraints else []
+        
+        # Step 5: Return the plan explanation
+        return PlanExplanation(
+            scheduled_tasks=scheduled_tasks,
+            reasoning=reasoning,
+            constraints_applied=constraints_applied)
 
     def explain_plan(self, plan: PlanExplanation) -> str:
         return plan.get_full_explanation()
